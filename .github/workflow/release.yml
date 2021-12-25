@@ -1,0 +1,85 @@
+name: Desktop Release
+
+on:
+  push:
+    tags:
+      - v*.*.*
+
+jobs:
+  publish_on_linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: screenplayer/screenplayer.app
+      - uses: actions/setup-node@master
+        with:
+          node-version: 16
+      - name: install rpm package
+        run: sudo apt install rpm
+      - name: install snapcraft package
+        run: sudo apt install snapcraft
+      - name: install multipass
+        run: sudo snap install multipass
+      - name: install lerna
+        run: npm install -g lerna
+      - name: install dependencies
+        run: lerna bootstrap
+      - name: build @screenplayer/core
+        run: lerna run build --scope=@screenplayer/core
+      - name: build @screenplayer/lang
+        run: lerna run build --scope=@screenplayer/lang
+      - name: build @screenplayer/model
+        run: lerna run build --scope=@screenplayer/model
+      - name: publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.deploy }}
+        run: lerna run publish --scope=screenplayer
+
+  publish_on_mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: screenplayer/screenplayer.app
+      - uses: actions/setup-node@master
+        with:
+          node-version: 16
+      - name: install lerna
+        run: npm install -g lerna
+      - name: install dependencies
+        run: lerna bootstrap
+      - name: build @screenplayer/core
+        run: lerna run build --scope=@screenplayer/core
+      - name: build @screenplayer/lang
+        run: lerna run build --scope=@screenplayer/lang
+      - name: build @screenplayer/model
+        run: lerna run build --scope=@screenplayer/model
+      - name: publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.deploy }}
+        run: lerna run publish --scope=screenplayer
+
+  publish_on_win:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: screenplayer/screenplayer.app
+      - uses: actions/setup-node@master
+        with:
+          node-version: 16
+      - name: install lerna
+        run: npm install -g lerna
+      - name: install dependencies
+        run: lerna bootstrap
+      - name: build @screenplayer/core
+        run: lerna run build --scope=@screenplayer/core
+      - name: build @screenplayer/lang
+        run: lerna run build --scope=@screenplayer/lang
+      - name: build @screenplayer/model
+        run: lerna run build --scope=@screenplayer/model
+      - name: publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.deploy }}
+        run: lerna run publish --scope=screenplayer
